@@ -7,6 +7,8 @@ import CustomerServices from "services/CustomerServices";
 import AdminServices from "services/AdminServices";
 import CouponServices from "services/CouponServices";
 import ProductServices from "services/ProductServices";
+import StoreServices from "services/StoreServices";
+import EyeTestServices from "services/EyeTestServices";
 import CategoryServices from "services/CategoryServices";
 import { SidebarContext } from "context/SidebarContext";
 import { notifySuccess, notifyError } from "utils/toast";
@@ -69,6 +71,32 @@ const MainModal = ({ id, title }) => {
         .catch((err) => notifyError(err.message));
       closeModal();
       setServiceId();
+    }
+    if (location.pathname === "/store") {
+      StoreServices.deleteStore(id)
+        .then((res) => {
+          setIsUpdate(true);
+          notifySuccess(res.message);
+          console.log('Deleting store with id:', id);
+          console.log('Current path:', location.pathname);
+        })
+        .catch((err) => notifyError(err.message));
+      closeModal();
+      setServiceId();
+    }
+    if (location.pathname === "/eye-test") {
+      setIsDeleting(true);
+      EyeTestServices.deleteBooking(id)
+        .then((res) => {
+          setIsUpdate(true);
+          notifySuccess(res.message);
+        })
+        .catch((err) => notifyError(err.message))
+        .finally(() => {
+          setIsDeleting(false);
+          closeModal();
+          setServiceId();
+        });
     }
   };
 

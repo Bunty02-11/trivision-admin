@@ -73,7 +73,7 @@ const ProductDetails = () => {
               </h2>
 
               <p className="uppercase font-serif font-medium text-gray-500 dark:text-gray-400 text-sm">
-                {t("Sku")}:{" "}
+                {t("Sku")}:{data?.sku}
                 <span className="font-bold text-gray-500 dark:text-gray-500">
                   {data?.model_code}
                 </span>
