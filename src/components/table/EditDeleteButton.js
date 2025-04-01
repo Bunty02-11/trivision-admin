@@ -49,18 +49,20 @@ const EditDeleteButton = ({
             </button>
           </>
         ) : (
-          <button
-            disabled={isCheck?.length > 0}
-            onClick={() => handleUpdate(id)}
-            className="p-2 cursor-pointer text-gray-400 hover:text-green-600 focus:outline-none"
-          >
-            <Tooltip
-              id="edit"
-              Icon={FiEdit}
-              title={t("Edit")}
-              bgColor="#10B981"
-            />
-          </button>
+          // <button
+          //   disabled={isCheck?.length > 0}
+          //   onClick={() => handleUpdate(id)}
+          //   className="p-2 cursor-pointer text-gray-400 hover:text-green-600 focus:outline-none"
+          // >
+          //   <Tooltip
+          //     id="edit"
+          //     Icon={FiEdit}
+          //     title={t("Edit")}
+          //     bgColor="#10B981"
+          //   />
+          // </button>
+          <>
+          </>
         )}
 
         <button

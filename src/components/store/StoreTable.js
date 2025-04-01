@@ -32,9 +32,9 @@ const StoreTable = ({ staffs, lang }) => {
     <>
       <DeleteModal id={serviceId} title={title} />
 
-      <MainDrawer>
+      {/* <MainDrawer>
         <StaffDrawer id={serviceId} />
-      </MainDrawer>
+      </MainDrawer> */}
 
       <TableBody>
         {staffs?.map((staff) => (

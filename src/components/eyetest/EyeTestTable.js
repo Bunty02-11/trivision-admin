@@ -26,7 +26,7 @@ const StaffTable = ({ staffs, lang }) => {
   } = useToggleDrawer();
 
   const { globalSetting } = useFilter();
-  console.log(staffs, "hi")
+  // console.log(staffs[0]._id, "hi")
 
   return (
     <>
