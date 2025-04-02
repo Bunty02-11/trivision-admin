@@ -1,123 +1,172 @@
-import React from "react";
-import { Scrollbars } from "react-custom-scrollbars-2";
-//internal import
-import { useTranslation } from "react-i18next";
-import useAttributeSubmit from "hooks/useAttributeSubmit";
-import Title from "components/form/Title";
-import LabelArea from "components/form/LabelArea";
-import InputArea from "components/form/InputArea";
-import { Textarea } from "@windmill/react-ui";
-import Error from "components/form/Error";
-import DrawerButton from "components/form/DrawerButton";
-import Uploader from "components/image-uploader/Uploader";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import AttributeServices from 'services/AttributeServices';
 
-const AttributeDrawer = ({ id }) => {
-  const {
-    handleSubmit,
-    onSubmit,
-    register,
-    errors,
-    isSubmitting,
-    imageUrl,
-    setImageUrl,
-    handleSelectLanguage,
-  } = useAttributeSubmit(id);
-
+const AttributeDrawer = ({ id, onUpdate }) => {
   const { t } = useTranslation();
+  const [storeData, setStoreData] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      AttributeServices.getAttributeById(id)
+        .then(res => {
+          setStoreData(res); // Ensure the data structure matches the state
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoading(false);
+        });
+    }
+  }, [id]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    AttributeServices.updateAttributes(id, storeData)
+      .then(res => {
+        console.log('Store updated successfully', res);
+        toast.success('Store updated successfully');
+        onUpdate(res); // Call onUpdate to update the parent component
+      })
+      .catch(err => {
+        console.error('Error updating store', err);
+        toast.error('Error updating store');
+      });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setStoreData(prev => ({
+      ...prev,
+      [name.toLowerCase()]: value // Ensure keys are correctly named
+    }));
+  };
+
+  const handleFaqChange = (index, key, value) => {
+    const updatedFaqs = [...storeData.faqs];
+    updatedFaqs[index] = { ...updatedFaqs[index], [key]: value };
+    setStoreData(prev => ({
+      ...prev,
+      faqs: updatedFaqs
+    }));
+  };
 
   return (
-    <>
-      <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-        {id ? (
-          <Title
-            register={register}
-            handleSelectLanguage={handleSelectLanguage}
-            title={t("UpdateAttribute")}
-            description={t("UpdateAttributeDesc")}
-          />
-        ) : (
-          <Title
-            register={register}
-            handleSelectLanguage={handleSelectLanguage}
-            title={t("AddAttribute")}
-            description={t("AddAttributeDesc")}
-          />
-        )}
-      </div>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold mb-4">{t('Edit Brand')}</h2>
 
-      <Scrollbars className="w-full md:w-7/12 lg:w-8/12 xl:w-8/12 relative dark:bg-gray-700 dark:text-gray-200">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="px-6 pt-8 flex-grow scrollbar-hide w-full max-h-full h-full pb-40">
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label="Brand Logo" />
-              <div className="col-span-8 sm:col-span-4">
-                <Uploader
-                  imageUrl={imageUrl}
-                  setImageUrl={setImageUrl}
-                  folder="brand"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 relative">
-              <LabelArea label="Brand Name" />
-              <div className="col-span-8 sm:col-span-4">
-                <InputArea
-                  register={register}
-                  label="Brand Name"
-                  name="name"
-                  type="text"
-                  placeholder="Brand Name"
-                />
-                <Error errorName={errors.name} />
-              </div>
-            </div>
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6 relative">
-              <LabelArea label="Brand Slug" />
-              <div className="col-span-8 sm:col-span-4">
-                <InputArea
-                  register={register}
-                  label="Brand Slug"
-                  name="slug"
-                  type="text"
-                  placeholder="Brand Slug"
-                />
-                <Error errorName={errors.slug} />
-              </div>
-            </div>
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label="Title" />
-              <div className="col-span-8 sm:col-span-4">
-                <InputArea
-                  register={register}
-                  label="Title"
-                  name="title"
-                  type="text"
-                  placeholder="Brand Title"
-                />
-                <Error errorName={errors.title} />
-              </div>
-            </div>
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label="Brand Description" />
-              <div className="col-span-8 sm:col-span-4">
-                <Textarea
-                  className="border text-sm focus:outline-none block w-full bg-gray-100 border-transparent focus:bg-white"
-                  {...register("content", {
-                    required: "Brand Description is required.",
-                  })}
-                  name="content"
-                  placeholder="Brand Description"
-                  rows="4"
-                  spellCheck="false"
-                />
-                <Error errorName={errors.content} />
-              </div>
-            </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Name')}
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={storeData.name || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
           </div>
-          <DrawerButton id={id} title="Brand" isSubmitting={isSubmitting} />
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Meta Title')}
+            </label>
+            <input
+              type="text"
+              name="meta_title"
+              value={storeData.meta_title || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Meta Description')}
+            </label>
+            <textarea
+              name="meta_description"
+              value={storeData.meta_description || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Title')}
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={storeData.title || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Description')}
+            </label>
+            <textarea
+              name="content"
+              value={storeData.content || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              rows="4"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('FAQs')}
+            </label>
+            {Array.isArray(storeData.faqs) && storeData.faqs.length > 0 ? (
+              storeData.faqs.map((faq, index) => (
+                <div key={index} className="mb-4">
+                  <div className="mb-2">
+                    <strong>{t('Question')} {index + 1}:</strong>
+                    <input
+                      type="text"
+                      value={faq.question || ''}
+                      onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                  <div>
+                    <strong>{t('Answer')} {index + 1}:</strong>
+                    <textarea
+                      value={faq.answer || ''}
+                      onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div>N/A</div>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            {t('Update Brand')}
+          </button>
         </form>
-      </Scrollbars>
-    </>
+      )}
+    </div>
   );
 };
 

@@ -83,9 +83,9 @@ const TestimonialTable = ({ staffs, lang }) => {
               />
             </TableCell> */}
 
-                        {/* <TableCell>
+                        <TableCell>
                             <Link
-                                to={`/store/${staff?._id}`}
+                                to={`/testimonials/${staff?._id}`}
                                 className="flex justify-center text-gray-400 hover:text-green-600"
                             >
                                 <Tooltip
@@ -95,7 +95,7 @@ const TestimonialTable = ({ staffs, lang }) => {
                                     bgColor="#10B981"
                                 />
                             </Link>
-                        </TableCell> */}
+                        </TableCell>
 
                         <TableCell>
                             <EditDeleteButton
