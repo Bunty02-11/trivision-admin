@@ -1,6 +1,5 @@
 import { Avatar, TableBody, TableCell, TableRow } from "@windmill/react-ui";
 import { Link } from "react-router-dom";
-
 //internal import
 import { IoRemoveSharp } from "react-icons/io5";
 import useToggleDrawer from "hooks/useToggleDrawer";
@@ -11,6 +10,9 @@ import CheckBox from "components/form/CheckBox";
 import ShowHideButton from "components/table/ShowHideButton";
 import EditDeleteButton from "components/table/EditDeleteButton";
 import { showingTranslateValue } from "utils/translate";
+import Tooltip from "components/tooltip/Tooltip"
+import { FiZoomIn } from "react-icons/fi";
+import { t } from "i18next";
 
 const CategoryTable = ({
   data,
@@ -60,6 +62,19 @@ const CategoryTable = ({
             </TableCell>
             <TableCell className="font-medium text-sm ">
               {category?.slug}
+            </TableCell>
+            <TableCell>
+              <Link
+                to={`/categories/${category?._id}`}
+                className="flex justify-center text-gray-400 hover:text-green-600"
+              >
+                <Tooltip
+                  id="view"
+                  Icon={FiZoomIn}
+                  title={t("DetailsTbl")}
+                  bgColor="#10B981"
+                />
+              </Link>
             </TableCell>
             <TableCell>
               <EditDeleteButton

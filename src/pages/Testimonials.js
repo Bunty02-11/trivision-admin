@@ -111,11 +111,11 @@ const Store = () => {
                         <TableHeader>
                             <tr>
                                 {/* <TableCell>{t("Store Address")}</TableCell> */}
-                                <TableCell>{t("Store Address")}</TableCell>
+                                <TableCell>{t("Name")}</TableCell>
                                 {/* <TableCell>{t("StaffContactTbl")}</TableCell> */}
-                                <TableCell>{t("Services")}</TableCell>
+                                <TableCell>{t("Message")}</TableCell>
                                 {/* <TableCell>{t("Store Location")}</TableCell> */}
-                                {/* <TableCell className="text-center">{t("DetailsTbl")}</TableCell> */}
+                                <TableCell className="text-center">{t("DetailsTbl")}</TableCell>
                                 {/* <TableCell className="text-center">{t("Time")}</TableCell> */}
                                 {/* <TableCell className="text-center">{t("PublishedTbl")}</TableCell> */}
 

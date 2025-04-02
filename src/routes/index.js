@@ -7,11 +7,12 @@ const ChildAttributes = lazy(() => import("../pages/ChildAttributes"));
 const Products = lazy(() => import("../pages/Products"));
 const ProductDetails = lazy(() => import("../pages/ProductDetails"));
 const Category = lazy(() => import("../pages/Category"));
-const ChildCategory = lazy(() => import("../pages/ChildCategory"));
+const CategoryDetails = lazy(() => import("../pages/CategoryDetails"));
 const EyeTest = lazy(() => import("../pages/EyeTest"));
 const EyeTestDetails = lazy(() => import("../pages/EyeTestDetails"));
 const Store = lazy(() => import("../pages/Store"));
 const StoreDetails = lazy(() => import("../pages/StoreDetails"));
+const TestimonialsDetails = lazy(() => import("../pages/TestimonialsDetails"));
 const Testimonials = lazy(() => import("../pages/Testimonials"));
 const Customers = lazy(() => import("../pages/Customers"));
 const CustomerOrder = lazy(() => import("../pages/CustomerOrder"));
@@ -29,6 +30,7 @@ const ContactLens = lazy(() => import("../pages/Contact-lens"));
 const ContactLensDetails = lazy(() => import("../pages/Contact-lensDetails"));
 const Accessories = lazy(() => import("../pages/Accessories"));
 const AccessoriesDetails = lazy(() => import("../pages/AccessoriesDetails"));
+const AttributesDetails = lazy(() => import("../pages/AttributesDetails"));
 /*
 //  * ⚠ These are internal routes!
 //  * They will be rendered inside the app, using the default `containers/Layout`.
@@ -71,7 +73,7 @@ const routes = [
   },
   {
     path: "/attributes/:id",
-    component: ChildAttributes,
+    component: AttributesDetails,
   },
   {
     path: "/product/:id",
@@ -92,7 +94,7 @@ const routes = [
 
   {
     path: "/categories/:id",
-    component: ChildCategory,
+    component: CategoryDetails,
   },
   {
     path: "/customers",
@@ -121,6 +123,10 @@ const routes = [
   {
     path: "/testimonials",
     component: Testimonials,
+  },
+  {
+    path: "/testimonials/:id",
+    component: TestimonialsDetails,
   },
   {
     path: "/orders",

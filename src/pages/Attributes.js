@@ -181,6 +181,7 @@ const Attributes = () => {
                 <TableCell>Slug</TableCell>
                 <TableCell>Title</TableCell>
                 <TableCell>Content</TableCell>
+                <TableCell className="text-center">{t("DetailsTbl")}</TableCell>
                 <TableCell className="text-right">{t("AAction")}</TableCell>
               </tr>
             </TableHeader>

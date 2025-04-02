@@ -12,6 +12,8 @@ import Tooltip from "components/tooltip/Tooltip";
 import EditDeleteButton from "components/table/EditDeleteButton";
 import DeleteModal from "components/modal/DeleteModal";
 import { showingTranslateValue } from "utils/translate";
+import { FiZoomIn } from "react-icons/fi";
+import { t } from "i18next";
 
 const AttributeTable = ({ lang, isCheck, setIsCheck, attributes }) => {
   const { title, serviceId, handleModalOpen, handleUpdate } = useToggleDrawer();
@@ -72,6 +74,19 @@ const AttributeTable = ({ lang, isCheck, setIsCheck, attributes }) => {
             <TableCell className="font-medium text-sm">
               {attribute.content?.substr(0, 30)}
               {"..."}
+            </TableCell>
+            <TableCell>
+              <Link
+                to={`/attributes/${attribute?._id}`}
+                className="flex justify-center text-gray-400 hover:text-green-600"
+              >
+                <Tooltip
+                  id="view"
+                  Icon={FiZoomIn}
+                  title={t("DetailsTbl")}
+                  bgColor="#10B981"
+                />
+              </Link>
             </TableCell>
             <TableCell>
               <EditDeleteButton

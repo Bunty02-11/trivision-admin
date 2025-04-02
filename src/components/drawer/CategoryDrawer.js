@@ -1,173 +1,172 @@
-import { Input } from "@windmill/react-ui";
-import DrawerButton from "components/form/DrawerButton";
-import Error from "components/form/Error";
-import InputArea from "components/form/InputArea";
-import LabelArea from "components/form/LabelArea";
-import SwitchToggle from "components/form/SwitchToggle";
-import TextAreaCom from "components/form/TextAreaCom";
-import Title from "components/form/Title";
-import Uploader from "components/image-uploader/Uploader";
-import useCategorySubmit from "hooks/useCategorySubmit";
-import Tree from "rc-tree";
-import React from "react";
-import Scrollbars from "react-custom-scrollbars-2";
-import { useTranslation } from "react-i18next";
-//internal import
-import CategoryServices from "services/CategoryServices";
-import { notifyError } from "utils/toast";
-import { showingTranslateValue } from "utils/translate";
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import CategoryServices from 'services/CategoryServices';
 
-const CategoryDrawer = ({ id, data, lang }) => {
+const CategoryDrawer = ({ id, onUpdate }) => {
   const { t } = useTranslation();
+  const [storeData, setStoreData] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const {
-    checked,
-    register,
-    onSubmit,
-    handleSubmit,
-    errors,
-    imageUrl,
-    setImageUrl,
-    published,
-    setPublished,
-    setChecked,
-    selectCategoryName,
-    setSelectCategoryName,
-    handleSelectLanguage,
-    isSubmitting,
-  } = useCategorySubmit(id, data);
-
-  console.log("image=======>", imageUrl);
-
-  const STYLE = `
-  .rc-tree-child-tree {
-    display: hidden;
-  }
-  .node-motion {
-    transition: all .3s;
-    overflow-y: hidden;
-  }
-`;
-
-  const motion = {
-    motionName: "node-motion",
-    motionAppear: false,
-    onAppearStart: (node) => {
-      return { height: 0 };
-    },
-    onAppearActive: (node) => ({ height: node.scrollHeight }),
-    onLeaveStart: (node) => ({ height: node.offsetHeight }),
-    onLeaveActive: () => ({ height: 0 }),
-  };
-
-  const renderCategories = (categories) => {
-    let myCategories = [];
-    for (let category of categories) {
-      myCategories.push({
-        title: showingTranslateValue(category.name, lang),
-        key: category._id,
-        children:
-          category.children.length > 0 && renderCategories(category.children),
-      });
-    }
-
-    return myCategories;
-  };
-
-  const findObject = (obj, target) => {
-    return obj._id === target
-      ? obj
-      : obj?.children?.reduce(
-          (acc, obj) => acc ?? findObject(obj, target),
-          undefined
-        );
-  };
-
-  const handleSelect = async (key) => {
-    // console.log('key', key, 'id', id);
-    if (key === undefined) return;
+  useEffect(() => {
     if (id) {
-      const parentCategoryId = await CategoryServices.getCategoryById(key);
-
-      if (id === key) {
-        return notifyError("This can't be select as a parent category!");
-      } else if (id === parentCategoryId.parentId) {
-        return notifyError("This can't be select as a parent category!");
-      } else {
-        if (key === undefined) return;
-        setChecked(key);
-
-        const obj = data[0];
-        const result = findObject(obj, key);
-
-        setSelectCategoryName(showingTranslateValue(result?.name, lang));
-      }
-    } else {
-      if (key === undefined) return;
-      setChecked(key);
-
-      const obj = data[0];
-      const result = findObject(obj, key);
-
-      setSelectCategoryName(showingTranslateValue(result?.name, lang));
+      setLoading(true);
+      CategoryServices.getCategoryById(id)
+        .then(res => {
+          setStoreData(res); // Ensure the data structure matches the state
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error(err);
+          setLoading(false);
+        });
     }
+  }, [id]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    CategoryServices.updateCategory(id, storeData)
+      .then(res => {
+        console.log('Store updated successfully', res);
+        toast.success('Store updated successfully');
+        onUpdate(res); // Call onUpdate to update the parent component
+      })
+      .catch(err => {
+        console.error('Error updating store', err);
+        toast.error('Error updating store');
+      });
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setStoreData(prev => ({
+      ...prev,
+      [name.toLowerCase()]: value // Ensure keys are correctly named
+    }));
+  };
+
+  const handleFaqChange = (index, key, value) => {
+    const updatedFaqs = [...storeData.faqs];
+    updatedFaqs[index] = { ...updatedFaqs[index], [key]: value };
+    setStoreData(prev => ({
+      ...prev,
+      faqs: updatedFaqs
+    }));
   };
 
   return (
-    <>
-      <div className="w-full relative p-6 border-b border-gray-100 bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-        {id ? (
-          <Title
-            register={register}
-            handleSelectLanguage={handleSelectLanguage}
-            title={t("UpdateCategory")}
-            description={t("UpdateCategoryDescription")}
-          />
-        ) : (
-          <Title
-            register={register}
-            handleSelectLanguage={handleSelectLanguage}
-            title={t("AddCategoryTitle")}
-            description={t("AddCategoryDescription")}
-          />
-        )}
-      </div>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold mb-4">{t('Edit Category')}</h2>
 
-      <Scrollbars className="w-full md:w-7/12 lg:w-8/12 xl:w-8/12 relative dark:bg-gray-700 dark:text-gray-200">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="p-6 flex-grow scrollbar-hide w-full max-h-full pb-40">
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label="Category Name" />
-              <div className="col-span-8 sm:col-span-4">
-                <InputArea
-                  register={register}
-                  label="Category Name"
-                  name="name"
-                  type="text"
-                  placeholder="Name"
-                />
-                <Error errorName={errors.name} />
-              </div>
-            </div>
-            <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
-              <LabelArea label="Category Slug" />
-              <div className="col-span-8 sm:col-span-4">
-                <InputArea
-                  register={register}
-                  label="Category Slug"
-                  name="slug"
-                  type="text"
-                  placeholder="Slug"
-                />
-                <Error errorName={errors.slug} />
-              </div>
-            </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Name')}
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={storeData.name || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
           </div>
 
-          <DrawerButton id={id} title="Category" isSubmitting={isSubmitting} />
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Meta Title')}
+            </label>
+            <input
+              type="text"
+              name="meta_title"
+              value={storeData.meta_title || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Meta Description')}
+            </label>
+            <textarea
+              name="meta_description"
+              value={storeData.meta_description || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Title')}
+            </label>
+            <input
+              type="text"
+              name="title"
+              value={storeData.title || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('Description')}
+            </label>
+            <textarea
+              name="description"
+              value={storeData.description || ''}
+              onChange={handleInputChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              rows="4"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              {t('FAQs')}
+            </label>
+            {Array.isArray(storeData.faqs) && storeData.faqs.length > 0 ? (
+              storeData.faqs.map((faq, index) => (
+                <div key={index} className="mb-4">
+                  <div className="mb-2">
+                    <strong>{t('Question')} {index + 1}:</strong>
+                    <input
+                      type="text"
+                      value={faq.question || ''}
+                      onChange={(e) => handleFaqChange(index, 'question', e.target.value)}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                  <div>
+                    <strong>{t('Answer')} {index + 1}:</strong>
+                    <textarea
+                      value={faq.answer || ''}
+                      onChange={(e) => handleFaqChange(index, 'answer', e.target.value)}
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div>N/A</div>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          >
+            {t('Update Category')}
+          </button>
         </form>
-      </Scrollbars>
-    </>
+      )}
+    </div>
   );
 };
 

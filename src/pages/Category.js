@@ -201,6 +201,7 @@ const Category = () => {
                 </TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Slug</TableCell>
+                <TableCell className="text-center">{t("DetailsTbl")}</TableCell>
                 <TableCell className="text-right">
                   {t("catActionsTbl")}
                 </TableCell>
