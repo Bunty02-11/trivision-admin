@@ -1,51 +1,41 @@
 import {
     Badge,
-    Pagination,
     Table,
     TableCell,
     TableContainer,
-    TableFooter,
     TableHeader,
 } from "@windmill/react-ui";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 //internal import
-import AttributeList from "components/attribute/AttributeList";
 import MainDrawer from "components/drawer/MainDrawer";
 import AttributeDrawer from "components/drawer/AttributeDrawer";
 import Loading from "components/preloader/Loading";
 import PageTitle from "components/Typography/PageTitle";
 import { SidebarContext } from "context/SidebarContext";
 import useAsync from "hooks/useAsync";
-import useFilter from "hooks/useFilter";
-import useProductSubmit from "hooks/useProductSubmit";
 import useToggleDrawer from "hooks/useToggleDrawer";
-import AttributeServices from "services/AttributeServices";
-import { showingTranslateValue } from "utils/translate";
-import SettingServices from "services/SettingServices";
+import BrandServices from "services/BrandServices";
 
-const EyeTestDetails = () => {
+const AttributesDetails = () => {
     const { id } = useParams();
     const { t } = useTranslation();
     const { handleUpdate } = useToggleDrawer();
     const { lang } = useContext(SidebarContext);
+    const [refreshData, setRefreshData] = useState(false);
 
-    const { data, loading } = useAsync(() => AttributeServices.getAttributeById(id));
-    const { data: globalSetting } = useAsync(SettingServices.getGlobalSetting);
-    const currency = globalSetting?.default_currency || "AED";
+    const { data, loading } = useAsync(() => BrandServices.getBrandById(id), [id, refreshData]);
 
-    // Function to handle edit action
-    const handleEditStore = (storeId) => {
-        // This will open the drawer with the store data
-        handleUpdate(storeId);
+    // Function to handle edit action and refresh data after update
+    const handleUpdateSuccess = () => {
+        setRefreshData(!refreshData);
     };
-    // console.log("Store data:", data);
 
     return (
         <>
             <MainDrawer>
-                <AttributeDrawer id={id} />
+                <AttributeDrawer id={id} onUpdate={handleUpdateSuccess} />
             </MainDrawer>
 
             <PageTitle>{t("Brand Details")}</PageTitle>
@@ -57,11 +47,11 @@ const EyeTestDetails = () => {
 
                     <div className="flex flex-col lg:flex-row md:flex-row w-full overflow-hidden">
                         <div className="flex-shrink-0 flex items-center justify-center h-auto ">
-                            {data?.brand_logo?.length ? (
+                            {data?.brand_logo ? (
                                 <img
                                     src={data?.brand_logo}
                                     alt="product"
-                                    className="h-32 w-64"
+                                    className="h-64 w-64 object-contain"
                                 />
                             ) : (
                                 <img
@@ -71,9 +61,24 @@ const EyeTestDetails = () => {
                             )}
                         </div>
                         <div className="w-full flex flex-col p-5 md:p-8 text-left">
-                            <p className="text-sm leading-6 text-gray-500 dark:text-gray-400 md:leading-7">
-                                {data?.product_description}
+                            <h2 className="text-heading text-lg md:text-xl lg:text-2xl font-semibold font-serif dark:text-gray-400 mb-2">
+                                {data?.name}
+                            </h2>
+                            
+                            <p className="uppercase font-serif font-medium text-gray-500 dark:text-gray-400 text-sm mb-4">
+                                {t("Slug")}: <span className="font-bold">{data?.slug}</span>
                             </p>
+                            
+                            {data?.content && (
+                                <div className="mb-4">
+                                    <h3 className="text-heading text-base font-semibold font-serif dark:text-gray-400 mb-2">
+                                        {t("Description")}:
+                                    </h3>
+                                    <p className="text-sm leading-6 text-gray-500 dark:text-gray-400 md:leading-7">
+                                        {data?.content}
+                                    </p>
+                                </div>
+                            )}
 
                             <TableContainer className="mb-8 rounded-b-lg">
                                 <Table>
@@ -141,10 +146,10 @@ const EyeTestDetails = () => {
                             {/* Edit Button */}
                             <div className="mt-6">
                                 <button
-                                    onClick={() => handleEditStore(id)}
+                                    onClick={() => handleUpdate(id)}
                                     className="cursor-pointer leading-5 transition-colors duration-150 font-medium text-sm focus:outline-none px-5 py-2 rounded-md text-white bg-green-500 border border-transparent active:bg-green-600 hover:bg-green-600 focus:ring focus:ring-purple-300"
                                 >
-                                    {t("Edit category")}
+                                    {t("Edit Brand")}
                                 </button>
                             </div>
                         </div>
@@ -155,4 +160,4 @@ const EyeTestDetails = () => {
     );
 };
 
-export default EyeTestDetails;
+export default AttributesDetails;

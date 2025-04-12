@@ -15,13 +15,23 @@ const ProductServices = {
     return requests.post(`/products/${id}`);
   },
   addProduct: async (body) => {
-    return requests.post("/products/add", body);
+    // For FormData, don't set Content-Type header as it will be set automatically with boundary
+    return requests.post("/products/add", body, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
   },
   addAllProducts: async (body) => {
     return requests.post("/products/all", body);
   },
   updateProduct: async (id, body) => {
-    return requests.patch(`/products/${id}`, body);
+    // For FormData, don't set Content-Type header as it will be set automatically with boundary
+    return requests.patch(`/products/${id}`, body, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
   },
   updateManyProducts: async (body) => {
     return requests.patch("products/update/many", body);
@@ -35,6 +45,15 @@ const ProductServices = {
   },
   deleteManyProducts: async (body) => {
     return requests.patch("/products/delete/many", body);
+  },
+
+  reorderImages: async (productId, reordered_images) => {
+    try {
+      return await requests.patch(`/products/${productId}/reorder-images`, { reordered_images });
+    } catch (error) {
+      console.error('Error in reorderImages:', error);
+      throw error; // Re-throw to allow component-level handling
+    }
   },
 };
 
